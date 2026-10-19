@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import type { MatchingResult, PollResponse } from "@/lib/matching";
 
-type MatchingPayload = { mode: string; memberCount: number; result: MatchingResult; members?: PollResponse[]; leaderApproved: boolean; deputyApproved: boolean; swapWindowEnd?: string };
+type MatchingPayload = { mode: string; memberCount: number; result: MatchingResult; members?: PollResponse[]; leaderApproved: boolean; deputyApproved: boolean; swapWindowEnd?: string; notifications?: Array<{ id: string; memberId: string; message: string }> };
 
 export function MatchingStudio() {
   const [payload, setPayload] = useState<MatchingPayload | null>(null); const [csv, setCsv] = useState(""); const [message, setMessage] = useState(""); const [error, setError] = useState(""); const [pairId, setPairId] = useState(""); const [overrideMembers, setOverrideMembers] = useState<string[]>([]); const [reason, setReason] = useState("");
   async function load() { try { const response = await fetch("/api/matching"); const data = await response.json() as MatchingPayload; setPayload(data); } catch { setError("تعذر تحميل اقتراح التوزيع."); } }
   useEffect(() => { void load(); }, []);
+  useEffect(() => { if (payload?.notifications?.[0]) setMessage(payload.notifications[0].message); }, [payload]);
   async function importCsv() { setError(""); setMessage(""); try { const response = await fetch("/api/matching", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ csv }) }); const data = await response.json() as MatchingPayload & { error?: string }; if (!response.ok) throw new Error(data.error); setPayload(data); setCsv(""); setMessage("تم تحليل CSV وحفظ الاقتراح محلياً؛ ما زال غير معتمد."); } catch (caught) { setError(caught instanceof Error ? caught.message : "تعذر تحليل CSV"); } }
   async function decide(body: Record<string, unknown>, success: string) { setError(""); try { const response = await fetch("/api/matching", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }); const data = await response.json() as MatchingPayload & { error?: string }; if (!response.ok) throw new Error(data.error); setPayload((current) => current ? { ...current, ...data } : data); setMessage(success); } catch (caught) { setError(caught instanceof Error ? caught.message : "تعذر حفظ القرار"); } }
   const members = payload?.members ?? [];

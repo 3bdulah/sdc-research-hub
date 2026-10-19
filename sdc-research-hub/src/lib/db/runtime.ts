@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS matching_members (id TEXT PRIMARY KEY, name TEXT NOT 
 CREATE TABLE IF NOT EXISTS matching_pairs (id TEXT PRIMARY KEY, axis_id TEXT NOT NULL, member_one TEXT NOT NULL, member_two TEXT NOT NULL, explanation TEXT NOT NULL, approved INTEGER NOT NULL DEFAULT 0, override INTEGER NOT NULL DEFAULT 0, override_reason TEXT);
 CREATE TABLE IF NOT EXISTS matching_groups (id TEXT PRIMARY KEY, member_ids TEXT NOT NULL, head_id TEXT NOT NULL, explanation TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS matching_state (id TEXT PRIMARY KEY, leader_approved INTEGER NOT NULL DEFAULT 0, deputy_approved INTEGER NOT NULL DEFAULT 0, swap_window_end TEXT, updated_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS matching_notifications (id TEXT PRIMARY KEY, member_id TEXT NOT NULL, message TEXT NOT NULL, created_at TEXT NOT NULL, read INTEGER NOT NULL DEFAULT 0);
 `;
 
 function addDays(date: string, days: number): string {
@@ -189,7 +190,12 @@ export function updateLeadershipState(input: { approval?: Partial<ApprovalRecord
 export function listCamps(): CampRecord[] { return (getDatabase().prepare("SELECT id, name, start_date, end_date FROM camps ORDER BY id").all() as Array<{ id: string; name: string; start_date?: string; end_date?: string }>).map((camp) => ({ id: camp.id, name: camp.name, startDate: camp.start_date ?? undefined, endDate: camp.end_date ?? undefined })); }
 export function updateCamp(id: string, startDate?: string, endDate?: string): CampRecord[] { getDatabase().prepare("UPDATE camps SET start_date = ?, end_date = ? WHERE id = ?").run(startDate ?? null, endDate ?? null, id); return listCamps(); }
 
-export type MatchingState = { members: PollResponse[]; result: MatchingResult; leaderApproved: boolean; deputyApproved: boolean; swapWindowEnd?: string };
+export type MatchingNotification = { id: string; memberId: string; message: string; createdAt: string; read: boolean };
+export type MatchingState = { members: PollResponse[]; result: MatchingResult; leaderApproved: boolean; deputyApproved: boolean; swapWindowEnd?: string; notifications: MatchingNotification[] };
+export function getNonResponders(existingIds: string[]): PollResponse[] {
+  const known = new Set(existingIds); const rows = getDatabase().prepare("SELECT id, name, email, role FROM users WHERE role IN ('pair', 'reviewer') ORDER BY id").all() as Array<{ id: string; name: string; email: string; role: string }>;
+  return rows.filter((row) => !known.has(row.id)).map((row) => ({ id: row.id, name: row.name, email: row.email, axisRanking: ["a1", "a2", "a3"], trackPreference: row.role === "reviewer" ? "review" : "pair", secondTrack: row.role === "reviewer" ? "pair" : "review", sectors: [], reading: 3, translation: 3, arabicWriting: 3, technical: 3, threadWriting: 3, priorTranslation: false, weeklyHours: 3, leadershipInterest: false, nonResponder: true }));
+}
 export function saveMatchingRun(members: PollResponse[], result: MatchingResult): MatchingState {
   const db = getDatabase(); const now = new Date().toISOString();
   db.exec("BEGIN");
@@ -212,12 +218,13 @@ export function getMatchingState(): MatchingState {
   const pairs = (db.prepare("SELECT * FROM matching_pairs ORDER BY id").all() as Array<{ id: string; axis_id: string; member_one: string; member_two: string; explanation: string; approved: number; override: number }>).map((row) => ({ id: row.id, axisId: row.axis_id, memberIds: [row.member_one, row.member_two], explanation: row.explanation, approved: Boolean(row.approved), override: Boolean(row.override) }));
   const reviewGroups = (db.prepare("SELECT * FROM matching_groups ORDER BY id").all() as Array<{ id: string; member_ids: string; head_id: string; explanation: string }>).map((row) => ({ id: row.id, memberIds: JSON.parse(row.member_ids) as string[], headId: row.head_id, explanation: row.explanation }));
   const state = db.prepare("SELECT leader_approved, deputy_approved, swap_window_end FROM matching_state WHERE id = 'current'").get() as { leader_approved: number; deputy_approved: number; swap_window_end?: string } | undefined;
-  return { members, result: { pairs, reviewGroups, warnings: [] }, leaderApproved: Boolean(state?.leader_approved), deputyApproved: Boolean(state?.deputy_approved), swapWindowEnd: state?.swap_window_end ?? undefined };
+  const notifications = (db.prepare("SELECT id, member_id, message, created_at, read FROM matching_notifications ORDER BY created_at DESC").all() as Array<{ id: string; member_id: string; message: string; created_at: string; read: number }>).map((item) => ({ id: item.id, memberId: item.member_id, message: item.message, createdAt: item.created_at, read: Boolean(item.read) }));
+  return { members, result: { pairs, reviewGroups, warnings: [] }, leaderApproved: Boolean(state?.leader_approved), deputyApproved: Boolean(state?.deputy_approved), swapWindowEnd: state?.swap_window_end ?? undefined, notifications };
 }
 
 export function updateMatchingState(input: { leaderApproved?: boolean; deputyApproved?: boolean; pairId?: string; memberIds?: string[]; reason?: string }): MatchingState {
   const db = getDatabase(); const current = getMatchingState();
-  if (input.pairId && input.memberIds?.length === 2 && input.reason?.trim()) db.prepare("UPDATE matching_pairs SET member_one = ?, member_two = ?, override = 1, override_reason = ? WHERE id = ?").run(input.memberIds[0], input.memberIds[1], input.reason.trim(), input.pairId);
+  if (input.pairId && input.memberIds?.length === 2 && input.reason?.trim()) { const old = current.result.pairs.find((pair) => pair.id === input.pairId); db.prepare("UPDATE matching_pairs SET member_one = ?, member_two = ?, override = 1, override_reason = ? WHERE id = ?").run(input.memberIds[0], input.memberIds[1], input.reason.trim(), input.pairId); const message = `تم تعديل توزيعك في ${input.pairId}. السبب: ${input.reason.trim()}`; for (const memberId of new Set([...(old?.memberIds ?? []), ...input.memberIds])) db.prepare("INSERT INTO matching_notifications (id, member_id, message, created_at) VALUES (?, ?, ?, ?)").run(`matching-note-${Date.now()}-${memberId}`, memberId, message, new Date().toISOString()); }
   const leader = input.leaderApproved ?? current.leaderApproved; const deputy = input.deputyApproved ?? current.deputyApproved; const windowEnd = leader && deputy ? (current.swapWindowEnd ?? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()) : current.swapWindowEnd ?? null;
   db.prepare("UPDATE matching_state SET leader_approved = ?, deputy_approved = ?, swap_window_end = ?, updated_at = ? WHERE id = 'current'").run(leader ? 1 : 0, deputy ? 1 : 0, windowEnd, new Date().toISOString());
   return getMatchingState();
