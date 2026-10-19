@@ -8,6 +8,7 @@ import { demoCounts, demoPapers } from "@/lib/demo-data";
 import { getAppMode } from "@/lib/mode";
 import { listStoredPapers } from "@/lib/db/runtime";
 import { LeadershipCalendarPanel } from "@/components/leadership-calendar-panel";
+import { KpiPlanPanel } from "@/components/kpi-plan-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,7 @@ export default function Home() {
       <section className="grid gap-6 lg:grid-cols-[1.4fr_1fr]"><article className="rounded-2xl border border-ink/10 bg-white p-6 shadow-sm"><p className="text-sm text-ink/60">التقويم المحسوب</p><h2 className="mt-1 text-xl font-bold">مراحل الدورة</h2><div className="mt-5 grid gap-3 sm:grid-cols-2">{calendar.map((milestone) => <div className="rounded-xl bg-sand px-4 py-3" key={milestone.id}><div className="flex items-center justify-between gap-2"><p className="font-medium">اليوم {milestone.cycleDay}: {milestone.labelAr}</p><span className="font-mono text-xs" dir="ltr">{milestone.dueDate}</span></div>{milestone.shifted && <p className="mt-1 text-xs text-coral">{milestone.noticeAr}</p>}</div>)}</div></article><aside className="rounded-2xl border border-ink/10 bg-white p-6 shadow-sm"><p className="text-sm text-ink/60">ضبط الخطة</p><h2 className="mt-1 text-xl font-bold">مصدر الإعدادات</h2><p className="mt-4 leading-7 text-ink/70">كل المحاور، المؤشرات، المواضيع، والمسؤوليات محملة من ملفات إعداد قابلة للتحرير، وليست ثابتة داخل الواجهة.</p><div className="mt-5 space-y-2 text-sm"><p>المحاور: <strong>{seedConfig.axes.length}</strong></p><p>مؤشرات الأداء: <strong>{seedConfig.kpis.length}</strong></p><p>بداية الدورة: <strong>{seedConfig.plan.cycleStart}</strong></p><p>المخرجات: <strong>ترجمة مستقلة + ملخص مستقل</strong></p></div></aside></section>
       <section className="rounded-2xl border border-ink/10 bg-white p-6 shadow-sm"><p className="text-sm text-ink/60">بوابة البحث · M2</p><h2 className="mt-1 text-xl font-bold">تحقق من أهلية بحث جديد</h2><p className="mb-5 mt-3 text-sm leading-7 text-ink/65">الصق رابط arXiv أو DOI. يبدأ الفحص من OpenAlex ثم يستخدم arXiv كبديل، ولا يدخل البحث دورة الفريق دون verdict للرخصة.</p><PaperGateForm /></section>
       <LeadershipCalendarPanel papers={board} milestones={calendar} />
+      <KpiPlanPanel papers={board} />
     </div>
   </main>;
 }

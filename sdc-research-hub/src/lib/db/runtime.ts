@@ -118,3 +118,29 @@ export function saveProposal(proposal: Omit<StoredProposal, "id">): StoredPropos
   getDatabase().prepare("INSERT INTO proposals (id, pair_id, url, title, authors, published_date, license_url, permission_note, permission_note_date, sector, license_verdict, selected) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").run(id, proposal.pairId, proposal.url, proposal.title ?? null, proposal.authors ?? null, proposal.publishedDate ?? null, proposal.licenseUrl ?? null, proposal.permissionNote ?? null, proposal.permissionNoteDate ?? null, proposal.sector, proposal.licenseVerdict, proposal.selected ? 1 : 0);
   return { id, ...proposal };
 }
+
+export function getPlanSnapshot(): Record<string, unknown> {
+  const snapshot: Record<string, unknown> = { ...seedConfig };
+  for (const row of getDatabase().prepare("SELECT kind, value FROM config_entries").all() as Array<{ kind: string; value: string }>) {
+    try { snapshot[row.kind] = JSON.parse(row.value) as unknown; } catch { snapshot[row.kind] = row.value; }
+  }
+  return snapshot;
+}
+
+export function updatePlanEntry(kind: string, value: unknown, changedBy = "demo-leader"): Record<string, unknown> {
+  const db = getDatabase();
+  const current = getPlanSnapshot()[kind] ?? null;
+  const serialized = JSON.stringify(value);
+  const now = new Date().toISOString();
+  db.prepare("INSERT INTO config_entries (id, kind, value, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at").run(`config-${kind}`, kind, serialized, now);
+  db.prepare("INSERT INTO change_log (id, entity, entity_id, before, after, changed_at, changed_by) VALUES (?, ?, ?, ?, ?, ?, ?)").run(`change-${Date.now()}`, "config", kind, JSON.stringify(current), serialized, now, changedBy);
+  return getPlanSnapshot();
+}
+
+export function rollbackPlanEntry(kind: string, changedBy = "demo-leader"): Record<string, unknown> {
+  const db = getDatabase();
+  const change = db.prepare("SELECT id, before, after FROM change_log WHERE entity = 'config' AND entity_id = ? ORDER BY changed_at DESC LIMIT 1").get(kind) as { id: string; before: string | null; after: string } | undefined;
+  if (!change || change.before === null) return getPlanSnapshot();
+  const previous = JSON.parse(change.before) as unknown;
+  return updatePlanEntry(kind, previous, changedBy);
+}
