@@ -1,0 +1,9 @@
+[
+  { "id": "start-date", "nameAr": "تأخر اعتماد تاريخ البداية", "owner": "leader", "severity": "high", "indicator": "pending approval" },
+  { "id": "license", "nameAr": "مصدر أو رخصة غير موثقة", "owner": "leader_deputy", "severity": "high", "indicator": "license verdicts" },
+  { "id": "delivery", "nameAr": "تأخر التسليم", "owner": "coordinator", "severity": "high", "indicator": "overdue tasks" },
+  { "id": "review-load", "nameAr": "ضغط المراجعات", "owner": "deputy", "severity": "medium", "indicator": "reviewer workload" },
+  { "id": "retention", "nameAr": "انخفاض الاستمرار", "owner": "leader", "severity": "medium", "indicator": "retention KPI" },
+  { "id": "camp-conflict", "nameAr": "تعارض المعسكر مع الدورة", "owner": "leader_deputy", "severity": "medium", "indicator": "camp dates" },
+  { "id": "sector-repeat", "nameAr": "تكرار القطاع داخل المحور", "owner": "coordinator", "severity": "medium", "indicator": "coverage grid" }
+]
