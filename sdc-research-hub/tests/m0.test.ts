@@ -3,6 +3,7 @@ import { defaultCycleStart, seedConfig } from "@/lib/config";
 import { demoCounts, demoPapers } from "@/lib/demo-data";
 import { getAppMode, privateDataPath } from "@/lib/mode";
 import { escalationFor, generateCycleCalendar, isComplete, shiftToEarlierWorkday } from "@/lib/cycle";
+import { parseMembersCsv } from "@/lib/db/private-import";
 
 describe("M0 demo foundation", () => {
   it("contains the expected synthetic team shape", () => {
@@ -45,5 +46,10 @@ describe("M0 demo foundation", () => {
     expect(escalationFor(49)).toBe("coordinator");
     expect(escalationFor(96)).toBe("leader_deputy");
     expect(escalationFor(2, true)).toBe("leader_deputy");
+  });
+
+  it("parses private member CSV without providing a demo fallback", () => {
+    expect(parseMembersCsv("id,name,email,role\nprivate-1,عضو خاص,private@example.test,pair")).toEqual([{ id: "private-1", name: "عضو خاص", email: "private@example.test", role: "pair" }]);
+    expect(() => parseMembersCsv("id,name\nprivate-1,عضو خاص")).toThrow("id,name,email,role");
   });
 });

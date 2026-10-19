@@ -3,7 +3,8 @@ import { dirname, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { seedConfig } from "@/lib/config";
 import { demoPapers, type DemoPaper, type FileStatus } from "@/lib/demo-data";
-import { privateDataPath } from "@/lib/mode";
+import { getAppMode, privateDataPath } from "@/lib/mode";
+import { importPrivateMembers } from "@/lib/db/private-import";
 import { generateCycleCalendar } from "@/lib/cycle";
 
 let database: DatabaseSync | undefined;
@@ -30,7 +31,8 @@ function addDays(date: string, days: number): string {
 
 function dbPath(): string {
   const configured = privateDataPath(process.env.DATABASE_URL);
-  const path = resolve(process.cwd(), configured);
+  const mode = getAppMode();
+  const path = process.env.DATABASE_URL ? resolve(process.cwd(), configured) : resolve(process.cwd(), `private/${mode}.sqlite`);
   if (!path.includes(`${resolve(process.cwd(), "private")}/`)) return resolve(process.cwd(), "private/sdc.sqlite");
   return path;
 }
@@ -49,6 +51,11 @@ export function getDatabase(): DatabaseSync {
 export function seedDatabase(db = getDatabase()): void {
   const count = Number((db.prepare("SELECT COUNT(*) AS count FROM users").get() as { count: number }).count);
   if (count > 0) return;
+  if (getAppMode() === "private") {
+    const csvPath = process.env.PRIVATE_MEMBERS_CSV ? resolve(process.cwd(), privateDataPath(process.env.PRIVATE_MEMBERS_CSV)) : resolve(process.cwd(), "private/members.csv");
+    try { importPrivateMembers(db, csvPath); } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
+    return;
+  }
   const now = new Date().toISOString();
   const insertUser = db.prepare("INSERT INTO users (id, name, email, role, created_at) VALUES (?, ?, ?, ?, ?)");
   insertUser.run("leader-01", "عبدالله التجريبي", "leader.demo@example.test", "leader", now);
