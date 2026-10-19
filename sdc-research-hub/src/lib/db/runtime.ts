@@ -7,6 +7,7 @@ import { getAppMode, privateDataPath } from "@/lib/mode";
 import { importPrivateMembers } from "@/lib/db/private-import";
 import { generateCycleCalendar } from "@/lib/cycle";
 import type { MatchingResult, PollResponse } from "@/lib/matching";
+import type { DraftInput, DraftResult, DraftChecklist, GlossaryEntry } from "@/lib/draft";
 
 let database: DatabaseSync | undefined;
 
@@ -30,6 +31,9 @@ CREATE TABLE IF NOT EXISTS matching_pairs (id TEXT PRIMARY KEY, axis_id TEXT NOT
 CREATE TABLE IF NOT EXISTS matching_groups (id TEXT PRIMARY KEY, member_ids TEXT NOT NULL, head_id TEXT NOT NULL, explanation TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS matching_state (id TEXT PRIMARY KEY, leader_approved INTEGER NOT NULL DEFAULT 0, deputy_approved INTEGER NOT NULL DEFAULT 0, swap_window_end TEXT, updated_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS matching_notifications (id TEXT PRIMARY KEY, member_id TEXT NOT NULL, message TEXT NOT NULL, created_at TEXT NOT NULL, read INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE IF NOT EXISTS glossary_entries (term_en TEXT PRIMARY KEY, term_ar TEXT NOT NULL, notes TEXT);
+CREATE TABLE IF NOT EXISTS paper_drafts (id TEXT PRIMARY KEY, input_json TEXT NOT NULL, body TEXT NOT NULL, word_count INTEGER NOT NULL, within_page_range INTEGER NOT NULL, approved INTEGER NOT NULL DEFAULT 0, updated_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS draft_reviews (draft_id TEXT PRIMARY KEY, checklist_json TEXT NOT NULL, updated_at TEXT NOT NULL);
 `;
 
 function addDays(date: string, days: number): string {
@@ -229,3 +233,21 @@ export function updateMatchingState(input: { leaderApproved?: boolean; deputyApp
   db.prepare("UPDATE matching_state SET leader_approved = ?, deputy_approved = ?, swap_window_end = ?, updated_at = ? WHERE id = 'current'").run(leader ? 1 : 0, deputy ? 1 : 0, windowEnd, new Date().toISOString());
   return getMatchingState();
 }
+
+export type StoredDraft = { id: string; input: DraftInput; glossary: GlossaryEntry[]; draft: DraftResult };
+export function saveDraftRecord(input: DraftInput, draft: DraftResult, glossary: GlossaryEntry[]): StoredDraft {
+  const db = getDatabase(); const now = new Date().toISOString();
+  db.exec("BEGIN");
+  try {
+    db.exec("DELETE FROM glossary_entries;"); const insertGlossary = db.prepare("INSERT INTO glossary_entries (term_en, term_ar, notes) VALUES (?, ?, ?)");
+    for (const entry of glossary) insertGlossary.run(entry.termEn, entry.termAr, entry.notes ?? null);
+    db.prepare("INSERT INTO paper_drafts (id, input_json, body, word_count, within_page_range, approved, updated_at) VALUES ('draft-current', ?, ?, ?, ?, 0, ?) ON CONFLICT(id) DO UPDATE SET input_json=excluded.input_json, body=excluded.body, word_count=excluded.word_count, within_page_range=excluded.within_page_range, approved=0, updated_at=excluded.updated_at").run(JSON.stringify(input), draft.body, draft.wordCount, draft.withinPageRange ? 1 : 0, now);
+    db.prepare("INSERT INTO draft_reviews (draft_id, checklist_json, updated_at) VALUES ('draft-current', ?, ?) ON CONFLICT(draft_id) DO UPDATE SET checklist_json=excluded.checklist_json, updated_at=excluded.updated_at").run(JSON.stringify(draft.checklist), now); db.exec("COMMIT");
+  } catch (error) { db.exec("ROLLBACK"); throw error; }
+  return getDraftRecord() as StoredDraft;
+}
+export function getDraftRecord(): StoredDraft | null {
+  const db = getDatabase(); const row = db.prepare("SELECT * FROM paper_drafts WHERE id = 'draft-current'").get() as { id: string; input_json: string; body: string; word_count: number; within_page_range: number; approved: number } | undefined; if (!row) return null;
+  const input = JSON.parse(row.input_json) as DraftInput; const glossary = (db.prepare("SELECT term_en, term_ar, notes FROM glossary_entries ORDER BY term_en").all() as Array<{ term_en: string; term_ar: string; notes?: string }>).map((entry) => ({ termEn: entry.term_en, termAr: entry.term_ar, notes: entry.notes ?? undefined })); const review = db.prepare("SELECT checklist_json FROM draft_reviews WHERE draft_id = 'draft-current'").get() as { checklist_json: string } | undefined; const checklist = review ? JSON.parse(review.checklist_json) as DraftChecklist : { sourceOpened: false, licenseVerified: false, translationReviewed: false, summaryReviewed: false, scientificReview: false, languageReview: false }; return { id: row.id, input, glossary, draft: { body: row.body, wordCount: row.word_count, withinPageRange: Boolean(row.within_page_range), glossaryUsed: glossary, draftLabel: "DRAFT (مسودة)", checklist, approved: Boolean(row.approved) } };
+}
+export function updateDraftReview(checklist: DraftChecklist, approved: boolean): StoredDraft | null { const current = getDraftRecord(); if (!current) return null; const allowed = approved && current.draft.withinPageRange && Object.values(checklist).every(Boolean); const now = new Date().toISOString(); const db = getDatabase(); db.prepare("UPDATE paper_drafts SET approved = ?, updated_at = ? WHERE id = 'draft-current'").run(allowed ? 1 : 0, now); db.prepare("UPDATE draft_reviews SET checklist_json = ?, updated_at = ? WHERE draft_id = 'draft-current'").run(JSON.stringify(checklist), now); return getDraftRecord(); }
