@@ -80,7 +80,6 @@ async function fetchOpenAlex(normalized: ReturnType<typeof normalizeIdentifier>,
   const response = await fetchWithTimeout(fetcher, `https://api.openalex.org/works/${encodeURIComponent(key)}`);
   const data = await readJson(response, "openalex");
   const biblio = data.biblio as { first_page?: string; last_page?: string } | undefined;
-  const openAccess = data.open_access as { is_oa?: boolean; oa_url?: string } | undefined;
   const location = data.best_oa_location as { license?: string; landing_page_url?: string } | undefined;
   const authors = Array.isArray(data.authorships) ? data.authorships.map((author) => (author as { author?: { display_name?: string } }).author?.display_name).filter((name): name is string => Boolean(name)) : [];
   return {
