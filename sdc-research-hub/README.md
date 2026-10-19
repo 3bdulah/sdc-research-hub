@@ -54,7 +54,7 @@ The runtime uses SQLite with the Node `node:sqlite` API and keeps the schema in 
 
 ## Screenshots
 
-The M6 production-shell review image is available at [`docs/screenshots/m6-production-shell.png`](docs/screenshots/m6-production-shell.png). For a fresh review, run the app with `npm run dev` and capture the Arabic Team Hub, Paper Gate verdict, Cycle Board, and Abdullah Mode panels at 1280px or wider.
+The M6 production-shell review image is available at [`docs/screenshots/m6-production-shell.png`](docs/screenshots/m6-production-shell.png). For a fresh review, run the app with `npm run dev` and capture the Arabic Team Hub, Paper Gate verdict, Cycle Board, and leader cockpit panels at 1280px or wider.
 
 ## Demo recording script
 
@@ -62,7 +62,7 @@ The M6 production-shell review image is available at [`docs/screenshots/m6-produ
 2. Paste an arXiv URL into Paper Gate; show the source, recency, page, license checks, and verdict.
 3. Save the proposal, then move to Cycle Board and show that translation and summary have separate statuses.
 4. Change one deliverable status and show the persisted update and completion rule.
-5. Open Abdullah Mode; demonstrate the 24-hour approval queue, dual sign-off, opened-links checklist, and draft pending message.
+5. Open the leader cockpit; demonstrate the 24-hour approval queue, dual sign-off, opened-links checklist, and draft pending message.
 6. Open the 12-month calendar; show topics, sectors, activities, intersections, and the unscheduled camp conflict check.
 7. Open M5; edit a JSON configuration entry, show the change message, generate the Arabic Markdown report, and download it.
 8. Close by reminding viewers that demo mode is safe and all AI-generated text remains `DRAFT (مسودة)` until human approval.
