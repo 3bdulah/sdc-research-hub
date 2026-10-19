@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { defaultCycleStart, seedConfig } from "@/lib/config";
 import { demoCounts, demoPapers } from "@/lib/demo-data";
 import { getAppMode, privateDataPath } from "@/lib/mode";
+import { escalationFor, generateCycleCalendar, isComplete, shiftToEarlierWorkday } from "@/lib/cycle";
 
 describe("M0 demo foundation", () => {
   it("contains the expected synthetic team shape", () => {
@@ -19,5 +20,30 @@ describe("M0 demo foundation", () => {
     expect(getAppMode("private")).toBe("private");
     expect(privateDataPath("/tmp/real-data")).toBe("./private");
     expect(privateDataPath("private/team.csv")).toBe("private/team.csv");
+  });
+
+  it("generates the cycle milestones and shifts Friday/Saturday deadlines earlier", () => {
+    expect(shiftToEarlierWorkday("2026-11-28")).toEqual({ date: "2026-11-26", shifted: true });
+    expect(shiftToEarlierWorkday("2026-12-18")).toEqual({ date: "2026-12-17", shifted: true });
+    expect(shiftToEarlierWorkday("2027-05-28")).toEqual({ date: "2027-05-27", shifted: true });
+    expect(shiftToEarlierWorkday("2027-08-28")).toEqual({ date: "2027-08-26", shifted: true });
+    expect(shiftToEarlierWorkday("2027-06-18")).toEqual({ date: "2027-06-17", shifted: true });
+    expect(shiftToEarlierWorkday("2027-09-18")).toEqual({ date: "2027-09-16", shifted: true });
+    const calendar = generateCycleCalendar("2026-11-01");
+    expect(calendar).toHaveLength(6);
+    expect(calendar.find((milestone) => milestone.id === "release")?.dueDate).toBe("2026-11-26");
+  });
+
+  it("requires both independent deliverables to be approved", () => {
+    expect(isComplete("approved", "approved")).toBe(true);
+    expect(isComplete("approved", "in_review")).toBe(false);
+    expect(isComplete("in_review", "approved")).toBe(false);
+  });
+
+  it("escalates overdue work at 48 hours and four days", () => {
+    expect(escalationFor(48)).toBe("none");
+    expect(escalationFor(49)).toBe("coordinator");
+    expect(escalationFor(96)).toBe("leader_deputy");
+    expect(escalationFor(2, true)).toBe("leader_deputy");
   });
 });
