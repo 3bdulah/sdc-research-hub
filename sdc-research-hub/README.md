@@ -51,7 +51,7 @@ The runtime uses SQLite with the Node `node:sqlite` API and keeps the schema in 
 
 ## Screenshots
 
-Run the app with `npm run dev`, then capture the Arabic Team Hub, Paper Gate verdict, Cycle Board, and Abdullah Mode panels at 1280px or wider. The included demo script below is the recommended recording order.
+The M6 production-shell review image is available at [`docs/screenshots/m6-production-shell.png`](docs/screenshots/m6-production-shell.png). For a fresh review, run the app with `npm run dev` and capture the Arabic Team Hub, Paper Gate verdict, Cycle Board, and Abdullah Mode panels at 1280px or wider.
 
 ## Demo recording script
 
@@ -70,7 +70,7 @@ Vercel and Netlify configuration files are included for demo-only deployment. Th
 
 ## Roadmap
 
-M0–M6 are implemented. M7 is Matching Studio, M8 is Draft Assistant + Glossary, and M9 is Threads, digest, and messages. Authentication, hosted persistence, real AI providers, and real member-data import remain intentionally out of scope until their dedicated milestones.
+M0–M9 are implemented in the local demo application. M6 release verification is documented in [`docs/m6-release-verification.md`](docs/m6-release-verification.md). Authentication, hosted persistence, real AI providers, and real member-data import remain intentionally out of scope until their dedicated milestones.
 
 ## Built with Codex
 
