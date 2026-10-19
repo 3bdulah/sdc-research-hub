@@ -1,0 +1,14 @@
+{
+  "2026-11": { "ar": ["الوكلاء", "فهم الصور والفيديو", "التنبؤ والسلاسل الزمنية"], "en": ["Agents", "Image and video understanding", "Forecasting and time series"] },
+  "2026-12": { "ar": ["البرمجة بأسلوب Vibe", "نماذج الرؤية واللغة", "التعلم العميق للبيانات الجدولية"], "en": ["Vibe coding", "Vision-language models", "Deep learning for tabular data"] },
+  "2027-01": { "ar": ["النماذج اللغوية العربية", "التوليد البصري والوسائط", "الذكاء الاصطناعي الموثوق وقابلية التفسير"], "en": ["Arabic LLMs", "Visual generation and media", "Trustworthy AI and explainability"] },
+  "2027-02": { "ar": ["التوليد المعزز بالاسترجاع وقواعد البيانات المتجهية", "الروبوتات والتحكم", "التعلم الاتحادي والخصوصية"], "en": ["RAG and vector databases", "Robotics and control", "Federated learning and privacy"] },
+  "2027-03": { "ar": ["الاستدلال", "القيادة الذاتية والإدراك", "تحليلات البيانات الضخمة"], "en": ["Reasoning", "Autonomous driving and perception", "Big data analytics"] },
+  "2027-04": { "ar": ["النماذج متعددة الوسائط وأدوات المطورين", "الإدراك المكاني ثلاثي الأبعاد", "التعلم المعزز"], "en": ["Multimodal models and developer tools", "3D spatial perception", "Reinforcement learning"] },
+  "2027-05": { "ar": ["توليد الشيفرة ووكلاء البرمجة", "فهم الصور والمشاهد", "كشف الشذوذ والاحتيال"], "en": ["Code generation and coding agents", "Image and scene understanding", "Anomaly and fraud detection"] },
+  "2027-06": { "ar": ["الذكاء الاصطناعي للأعمال والإنتاجية", "الواقع المعزز والوسائط المختلطة", "التعلم من أمثلة قليلة"], "en": ["AI for business and productivity", "AR and mixed reality", "Few-shot learning"] },
+  "2027-07": { "ar": ["تقييم النماذج اللغوية وسلامتها", "توليد الفيديو وتحريره", "نماذج التنبؤ بالصحة العامة"], "en": ["LLM evaluation and safety", "Video generation and editing", "Predictive models for public health"] },
+  "2027-08": { "ar": ["النماذج الصغيرة عالية الكفاءة", "إنترنت الأشياء الذكي", "البنية التحتية الرقمية للذكاء الاصطناعي"], "en": ["Small efficient models", "Smart IoT (AIoT)", "Digital infrastructure for AI"] },
+  "2027-09": { "ar": ["أنظمة الوكلاء المتعددة", "الرؤية الطرفية", "كفاءة التدريب والاستدلال"], "en": ["Multi-agent systems", "Edge vision", "Training and inference efficiency"] },
+  "2027-10": { "ar": ["الذكاء الاصطناعي المسؤول والحوكمة", "الروبوتات التعاونية والطائرات المسيّرة", "نماذج العالم والمحاكاة"], "en": ["Responsible AI and governance", "Collaborative robots and drones", "World models and simulation"] }
+}
