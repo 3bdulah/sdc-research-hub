@@ -11,6 +11,7 @@ import { LeadershipCalendarPanel } from "@/components/leadership-calendar-panel"
 import { KpiPlanPanel } from "@/components/kpi-plan-panel";
 import { MatchingStudio } from "@/components/matching-studio";
 import { DraftAssistant } from "@/components/draft-assistant";
+import { PublishingStudio } from "@/components/publishing-studio";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,7 @@ export default function Home() {
       <KpiPlanPanel papers={board} />
       <MatchingStudio />
       <DraftAssistant />
+      <PublishingStudio />
     </div>
   </main>;
 }
