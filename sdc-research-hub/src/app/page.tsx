@@ -10,6 +10,7 @@ import { listStoredPapers } from "@/lib/db/runtime";
 import { LeadershipCalendarPanel } from "@/components/leadership-calendar-panel";
 import { KpiPlanPanel } from "@/components/kpi-plan-panel";
 import { MatchingStudio } from "@/components/matching-studio";
+import { DraftAssistant } from "@/components/draft-assistant";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,7 @@ export default function Home() {
       <LeadershipCalendarPanel papers={board} milestones={calendar} />
       <KpiPlanPanel papers={board} />
       <MatchingStudio />
+      <DraftAssistant />
     </div>
   </main>;
 }
