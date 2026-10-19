@@ -20,7 +20,7 @@ export default function Home() {
   const storedPapers = listStoredPapers();
   const board = buildPaperBoard(storedPapers.length > 0 ? storedPapers : demoPapers, seedConfig.plan.cycleStart, new Date());
   const completeCount = board.filter((paper) => paper.complete).length;
-  return <main className="min-h-screen">
+  return <main id="main-content" className="min-h-screen">
     <header className="border-b border-ink/10 bg-white/80"><div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-5"><div><p className="mb-1 text-sm font-medium text-teal">SDC · فريق البحث العلمي</p><h1 className="text-2xl font-bold">مركز أبحاث SDC</h1></div><div className="flex items-center gap-3"><LocaleSwitcher /><RoleSwitcher /></div></div></header>
     <div className="mx-auto max-w-7xl space-y-8 px-6 py-10">
       <section className="rounded-3xl bg-ink p-8 text-white shadow-xl"><div className="max-w-3xl"><span className="rounded-full bg-white/10 px-3 py-1 text-sm text-white/80">وضع {mode === "demo" ? "تجريبي آمن" : "خاص"}</span><h2 className="mt-5 text-4xl font-bold leading-tight">نحو معرفة عربية موثوقة، بحثًا بعد بحث.</h2><p className="mt-4 text-lg leading-8 text-white/70">لوحة الفريق الشهرية لإدارة الأبحاث، الترجمة، التلخيص، والمراجعة — في مكان واحد.</p></div></section>
