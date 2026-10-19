@@ -1,0 +1,7 @@
+import { Document, HeadingLevel, Packer, Paragraph } from "docx";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import * as fontkit from "fontkit";
+import { existsSync, readFileSync } from "node:fs";
+
+export async function renderDocx(text: string): Promise<Uint8Array> { const paragraphs = text.split("\n").map((line) => new Paragraph({ text: line.replace(/^#+\s*/, ""), heading: line.startsWith("#") ? HeadingLevel.HEADING_1 : undefined })); return Packer.toBuffer(new Document({ sections: [{ properties: {}, children: paragraphs }] })); }
+export async function renderPdf(text: string): Promise<Uint8Array> { const pdf = await PDFDocument.create(); pdf.registerFontkit(fontkit as unknown as Parameters<typeof pdf.registerFontkit>[0]); const candidates = [process.env.SDC_ARABIC_FONT_PATH, "/System/Library/Fonts/SFArabic.ttf", "/usr/share/fonts/truetype/noto/NotoSansArabic-Regular.ttf"].filter((value): value is string => Boolean(value)); const fontPath = candidates.find((candidate) => existsSync(candidate)); const font = fontPath ? await pdf.embedFont(readFileSync(fontPath)) : await pdf.embedFont(StandardFonts.Helvetica); const lines = text.replaceAll("#", "").split("\n"); let page = pdf.addPage([595, 842]); let y = 800; for (const line of lines) { if (y < 40) { page = pdf.addPage([595, 842]); y = 800; } const safeLine = fontPath ? line.slice(0, 100) : line.replace(/[^\x00-\x7F]/g, "?"); page.drawText(safeLine, { x: 40, y, size: 10, font, color: rgb(0.1, 0.13, 0.17) }); y -= 16; } return pdf.save(); }
