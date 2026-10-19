@@ -9,6 +9,7 @@ import { getAppMode } from "@/lib/mode";
 import { listStoredPapers } from "@/lib/db/runtime";
 import { LeadershipCalendarPanel } from "@/components/leadership-calendar-panel";
 import { KpiPlanPanel } from "@/components/kpi-plan-panel";
+import { MatchingStudio } from "@/components/matching-studio";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,7 @@ export default function Home() {
       <section className="rounded-2xl border border-ink/10 bg-white p-6 shadow-sm"><p className="text-sm text-ink/60">بوابة البحث · M2</p><h2 className="mt-1 text-xl font-bold">تحقق من أهلية بحث جديد</h2><p className="mb-5 mt-3 text-sm leading-7 text-ink/65">الصق رابط arXiv أو DOI. يبدأ الفحص من OpenAlex ثم يستخدم arXiv كبديل، ولا يدخل البحث دورة الفريق دون verdict للرخصة.</p><PaperGateForm /></section>
       <LeadershipCalendarPanel papers={board} milestones={calendar} />
       <KpiPlanPanel papers={board} />
+      <MatchingStudio />
     </div>
   </main>;
 }
