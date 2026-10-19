@@ -1,19 +1,36 @@
 # SDC Research Hub
 
-Arabic-first, RTL, offline-capable workspace for the Saudi Developers Community Scientific Research team. It manages a monthly cycle of 15 research papers, with a separate Arabic translation and short Arabic summary for every paper.
+Arabic-first, RTL, offline-capable workspace for the Saudi Developers Community (SDC) Scientific Research team. It manages a monthly cycle of 15 research papers, with a separate Arabic translation and short Arabic summary for every paper.
+
+## Why this exists
+
+Every month, the SDC Scientific Research team translates and summarizes AI research papers into Arabic. Doing that across 15 papers and a 50-person volunteer team means tracking licenses, deadlines, reviews, and approvals. This tool turns that workflow into one Arabic-first workspace. I built it with Codex, milestone by milestone, and published it as an open-source example of working with Codex on a real project.
+
+## Screenshots
+
+All screenshots use invented demo data.
+
+![Arabic Team Hub](docs/screenshots/01-team-hub.png)
+
+![Paper Gate verdict](docs/screenshots/02-paper-gate.png)
+
+![Cycle Board](docs/screenshots/03-cycle-board.png)
+
+![Leader dashboard](docs/screenshots/04-leader-dashboard.png)
 
 ## What works
 
 - Arabic default layout with RTL support and an English toggle across the workflow screens.
-- Empty-by-default `APP_MODE=private`; optional `APP_MODE=demo` contains invented records only and is intended for local review/testing.
-- Optional `APP_MODE=private` loading members from ignored `private/members.csv` into local SQLite.
-- Cycle calendar with Sunday–Thursday deadline shifting, per-deliverable status, completion rules, and escalation.
-- Paper Gate using OpenAlex first and arXiv fallback, with recency, size, and license verdicts.
-- Cycle milestones, planning-brief decisions, annual themes, KPIs, team matching, paper eligibility screening, saved proposal list, and a Markdown report based only on tracked records.
+- Two modes: `APP_MODE=private` (empty by default, loads members from an ignored `private/members.csv` into local SQLite) and `APP_MODE=demo` (invented records only, intended for local review and testing).
+- Cycle calendar with Sunday-Thursday deadline shifting, per-deliverable status, completion rules, and escalation.
+- Paper Gate using OpenAlex first and arXiv as a fallback, with recency, size, and license verdicts.
+- Cycle milestones, planning-brief decisions, annual themes, KPIs, team matching, paper eligibility screening, a saved proposal list, and a Markdown report based only on tracked records.
 - Offline demo data and mock-only AI behavior; no external LLM call is made by the application.
-- SDC and Scientific Research team branding is included in the application shell from the supplied project assets.
+- SDC and Scientific Research team branding is included in the application shell from the supplied project assets. The branding remains the property of the Saudi Developers Community.
 
 ## Quick start
+
+Requires Node.js 22 or newer (the app uses the built-in `node:sqlite` module).
 
 ```bash
 npm install
@@ -21,7 +38,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The default is a private, empty workspace. To run the production build locally:
+Open [http://localhost:3000](http://localhost:3000). The default is a private, empty workspace. To run the checks and a production build locally:
 
 ```bash
 npm run lint
@@ -52,22 +69,31 @@ All generated text is marked `DRAFT (مسودة)` and requires human approval. A
 
 The runtime uses local SQLite with the Node `node:sqlite` API and keeps the schema in `src/lib/db/schema.ts`. Only explicit demo mode seeds invented records. Private mode begins empty and does not copy committee data into source files.
 
-## Screenshots
+## Built with Codex
 
-For a fresh review, run the app with `npm run dev` and capture the Arabic Team Hub, Paper Gate verdict, Cycle Board, and planning panels at 1280px or wider.
+Codex was the implementation partner for this project. The workflow:
+
+1. **Rules first.** I started with an `AGENTS.md` file defining hard rules: no real member data in the repo, all AI-generated text labeled `DRAFT (مسودة)`, no paper without a license verdict, and a paper counts as complete only when both deliverables are approved.
+2. **Milestones.** Work was split into small milestones (scaffold, cycle board, Paper Gate, leader tools, calendar and planning, KPIs and reports, polish). Codex ran tests and checks after each one, and I reviewed the result before starting the next.
+3. **Domain rules in code.** Codex encoded the cycle rules, weekend deadline shifting, completion logic, and license verdicts, with deterministic tests that need no live network.
+4. **Privacy boundary.** Codex helped keep demo data and private data strictly separate.
+
+What I learned: small milestones with tests at each step made every Codex run easy to review and kept the project on track.
+
+Human review remains required for plan changes, AI drafts, approvals, and deployment decisions.
 
 ## Deployment
 
-This repository is not ready for public production deployment with committee data. API routes currently have no user authentication/authorization, and local SQLite is not suitable as durable shared storage on serverless hosting. Before deployment, add and test authentication, role-based permissions, hosted persistent storage, secure file storage/backups, and operational monitoring. Configure secrets only in the hosting provider's environment settings, never in Git. Until those controls exist, use it only on a trusted local machine with private mode or deploy no real data.
+This repository is not ready for public production deployment with committee data. API routes currently have no user authentication/authorization, and local SQLite is not suitable as durable shared storage on serverless hosting. Before deployment, add and test authentication, role-based permissions, hosted persistent storage, secure file storage/backups, and operational monitoring. Configure secrets only in the hosting provider's environment settings, never in Git. Until those controls exist, use it only on a trusted local machine with private mode, or deploy no real data.
 
 ## Roadmap
 
 This application is a local workflow foundation, not a finished multi-user production system. Some surfaces are informational, and publication/file-storage workflows are not implemented. Authentication and hosted persistence are required before a real committee deployment.
 
-## Built with Codex
-
-Codex was used as the implementation partner to scaffold the app, encode the domain rules, create deterministic demo data, implement the cycle/paper/leadership/KPI workflows, run the test and build checks, and preserve the privacy boundary between demo and private data. Human review remains required for plan changes, AI drafts, approvals, and deployment decisions.
-
 ## Contributing
 
 Keep changes small and milestone-scoped. Before opening a review, run lint, typecheck, tests, and build. Do not add real names, emails, poll answers, or copied committee material to tracked files.
+
+## License
+
+MIT. See [`LICENSE`](LICENSE).
