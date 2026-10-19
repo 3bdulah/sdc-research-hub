@@ -21,6 +21,9 @@ CREATE TABLE IF NOT EXISTS deliverables (id TEXT PRIMARY KEY, paper_id TEXT NOT 
 CREATE TABLE IF NOT EXISTS proposals (id TEXT PRIMARY KEY, pair_id TEXT NOT NULL, url TEXT NOT NULL, title TEXT, authors TEXT, published_date TEXT, license_url TEXT, permission_note TEXT, permission_note_date TEXT, sector TEXT NOT NULL, license_verdict TEXT NOT NULL, selected INTEGER NOT NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS config_entries (id TEXT PRIMARY KEY, kind TEXT NOT NULL, value TEXT NOT NULL, updated_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS change_log (id TEXT PRIMARY KEY, entity TEXT NOT NULL, entity_id TEXT NOT NULL, before TEXT, after TEXT NOT NULL, changed_at TEXT NOT NULL, changed_by TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS cockpit_approvals (id TEXT PRIMARY KEY, paper_title TEXT NOT NULL, proposed_at TEXT NOT NULL, leader_approved INTEGER NOT NULL DEFAULT 0, deputy_approved INTEGER NOT NULL DEFAULT 0, links_opened INTEGER NOT NULL DEFAULT 0, total_links INTEGER NOT NULL, opened_links INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE IF NOT EXISTS pending_items (id TEXT PRIMARY KEY, label TEXT NOT NULL, status TEXT NOT NULL, draft_message TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS camps (id TEXT PRIMARY KEY, name TEXT NOT NULL, start_date TEXT, end_date TEXT);
 `;
 
 function addDays(date: string, days: number): string {
@@ -50,7 +53,7 @@ export function getDatabase(): DatabaseSync {
 
 export function seedDatabase(db = getDatabase()): void {
   const count = Number((db.prepare("SELECT COUNT(*) AS count FROM users").get() as { count: number }).count);
-  if (count > 0) return;
+  if (count > 0) { seedSupplemental(db); return; }
   if (getAppMode() === "private") {
     const csvPath = process.env.PRIVATE_MEMBERS_CSV ? resolve(process.cwd(), privateDataPath(process.env.PRIVATE_MEMBERS_CSV)) : resolve(process.cwd(), "private/members.csv");
     try { importPrivateMembers(db, csvPath); } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
@@ -87,6 +90,16 @@ export function seedDatabase(db = getDatabase()): void {
   for (let index = 1; index <= 15; index += 1) for (const suffix of ["a", "b"]) insertProposal.run(`proposal-${String(index).padStart(2, "0")}-${suffix}`, `pair-${String(index).padStart(2, "0")}`, `https://example.test/demo/paper-${String(index).padStart(2, "0")}-${suffix}`, `اقتراح تجريبي ${index}${suffix}`, demoPapers[index - 1].sector, "reject", 0);
   const insertConfig = db.prepare("INSERT INTO config_entries (id, kind, value, updated_at) VALUES (?, ?, ?, ?)");
   for (const [kind, value] of Object.entries(seedConfig)) insertConfig.run(`config-${kind}`, kind, JSON.stringify(value), now);
+  seedSupplemental(db);
+}
+
+function seedSupplemental(db: DatabaseSync): void {
+  if (Number((db.prepare("SELECT COUNT(*) AS count FROM cockpit_approvals").get() as { count: number }).count) === 0) db.prepare("INSERT INTO cockpit_approvals (id, paper_title, proposed_at, total_links) VALUES (?, ?, ?, ?)").run("approval-demo", "بحث تجريبي 01: تطبيقات الذكاء الاصطناعي الموثوقة", "2026-11-01T08:00:00Z", 2);
+  if (Number((db.prepare("SELECT COUNT(*) AS count FROM pending_items").get() as { count: number }).count) === 0) {
+    const insert = db.prepare("INSERT INTO pending_items (id, label, status, draft_message) VALUES (?, ?, ?, ?)");
+    for (const item of seedConfig.pendingApprovals) insert.run(item.id, item.nameAr, item.status, `هلا جود، حبيت أتابع معك اعتماد ${item.nameAr} عشان نقدر نبدأ دورة البحث بشكل مرتب 🤍`);
+  }
+  if (Number((db.prepare("SELECT COUNT(*) AS count FROM camps").get() as { count: number }).count) === 0) db.prepare("INSERT INTO camps (id, name) VALUES (?, ?)").run("camp-q1", "معسكر 1: أساسيات البيانات");
 }
 
 export type StoredPaper = { id: string; titleAr: string; axis: string; pair: number; sector: string; license: DemoPaper["license"]; translation: FileStatus; summary: FileStatus; dueDate: string; complete: boolean };
@@ -144,3 +157,29 @@ export function rollbackPlanEntry(kind: string, changedBy = "demo-leader"): Reco
   const previous = JSON.parse(change.before) as unknown;
   return updatePlanEntry(kind, previous, changedBy);
 }
+
+export type ApprovalRecord = { id: string; paperTitle: string; proposedAt: string; leaderApproved: boolean; deputyApproved: boolean; linksOpened: boolean; totalLinks: number; openedLinks: number };
+export type PendingRecord = { id: string; label: string; status: string; draftMessage: string };
+export type CampRecord = { id: string; name: string; startDate?: string; endDate?: string };
+
+export function getLeadershipState(): { approval: ApprovalRecord; pending: PendingRecord[] } {
+  const db = getDatabase();
+  const row = db.prepare("SELECT * FROM cockpit_approvals LIMIT 1").get() as { id: string; paper_title: string; proposed_at: string; leader_approved: number; deputy_approved: number; links_opened: number; total_links: number; opened_links: number };
+  const pending = db.prepare("SELECT * FROM pending_items ORDER BY id").all() as Array<{ id: string; label: string; status: string; draft_message: string }>;
+  return { approval: { id: row.id, paperTitle: row.paper_title, proposedAt: row.proposed_at, leaderApproved: Boolean(row.leader_approved), deputyApproved: Boolean(row.deputy_approved), linksOpened: Boolean(row.links_opened), totalLinks: row.total_links, openedLinks: row.opened_links }, pending: pending.map((item) => ({ id: item.id, label: item.label, status: item.status, draftMessage: item.draft_message })) };
+}
+
+export function updateLeadershipState(input: { approval?: Partial<ApprovalRecord>; pendingId?: string; pendingStatus?: string }): { approval: ApprovalRecord; pending: PendingRecord[] } {
+  const db = getDatabase();
+  if (input.approval) {
+    const approval = input.approval;
+    const fields: string[] = []; const values: number[] = [];
+    for (const [key, column] of [["leaderApproved", "leader_approved"], ["deputyApproved", "deputy_approved"], ["linksOpened", "links_opened"]] as const) if (typeof approval[key] === "boolean") { fields.push(`${column} = ?`); values.push(approval[key] ? 1 : 0); }
+    if (fields.length > 0) db.prepare(`UPDATE cockpit_approvals SET ${fields.join(", ")} WHERE id = 'approval-demo'`).run(...values);
+  }
+  if (input.pendingId && input.pendingStatus) db.prepare("UPDATE pending_items SET status = ? WHERE id = ?").run(input.pendingStatus, input.pendingId);
+  return getLeadershipState();
+}
+
+export function listCamps(): CampRecord[] { return (getDatabase().prepare("SELECT id, name, start_date, end_date FROM camps ORDER BY id").all() as Array<{ id: string; name: string; start_date?: string; end_date?: string }>).map((camp) => ({ id: camp.id, name: camp.name, startDate: camp.start_date ?? undefined, endDate: camp.end_date ?? undefined })); }
+export function updateCamp(id: string, startDate?: string, endDate?: string): CampRecord[] { getDatabase().prepare("UPDATE camps SET start_date = ?, end_date = ? WHERE id = ?").run(startDate ?? null, endDate ?? null, id); return listCamps(); }
