@@ -1,3 +1,4 @@
+![SDC Logo](docs/screenshots/sdc.gif)
 # SDC Research Hub
 
 Arabic-first, RTL, offline-capable workspace for the Saudi Developers Community (SDC) Scientific Research team. It manages a monthly cycle of 15 research papers, with a separate Arabic translation and short Arabic summary for every paper.
