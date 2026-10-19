@@ -9,4 +9,7 @@
 body { margin: 0; font-family: "IBM Plex Sans Arabic", sans-serif; }
 button, input, select, textarea { font: inherit; }
 :focus-visible { outline: 3px solid #0f766e; outline-offset: 3px; }
+.locale-en { display: none; }
+html[data-locale="en"] .locale-ar { display: none; }
+html[data-locale="en"] .locale-en { display: inline; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
