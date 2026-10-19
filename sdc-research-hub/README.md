@@ -10,7 +10,8 @@ Arabic-first, RTL, offline-capable workspace for the Saudi Developers Community 
 - Cycle calendar with Sunday–Thursday deadline shifting, per-deliverable status, completion rules, and escalation.
 - Paper Gate using OpenAlex first and arXiv fallback, with recency, size, and license verdicts.
 - Leader/deputy cockpit, approval queue, pending tracker, annual topics/sectors/activities calendar, camp conflict check, KPI dashboard, editable JSON configuration, rollback, and Arabic Markdown report download.
-- Offline demo data and mock-only AI behavior; no external LLM call is made in M0–M6.
+- Offline demo data and mock-only AI behavior; no external LLM call is made by the application.
+- SDC and Scientific Research team branding is included in the application shell from the supplied project assets.
 
 ## Quick start
 
@@ -35,6 +36,8 @@ npm start
 `APP_MODE=demo` is the only mode suitable for deployment. It uses invented data and a local ignored database at `private/demo.sqlite`.
 
 `APP_MODE=private` is for local use only. Put a real CSV at `private/members.csv` or set `PRIVATE_MEMBERS_CSV` to another ignored path. Never commit `/private`, `.env*`, SQLite files, exports, or committee reference files. Never send member names, emails, poll answers, or private CSV contents to an LLM.
+
+The committee reference alignment is recorded in [`docs/requirements-alignment.md`](docs/requirements-alignment.md). The reference Markdown itself is private planning material and is intentionally not copied into the app or repository.
 
 All generated text is marked `DRAFT (مسودة)` and requires human approval. A paper cannot enter the workflow without a license verdict, and completion requires both independent deliverables to be approved.
 
@@ -66,7 +69,7 @@ The M6 production-shell review image is available at [`docs/screenshots/m6-produ
 
 ## Deployment
 
-Vercel and Netlify configuration files are included for demo-only deployment. They force `APP_MODE=demo`; do not deploy private mode. SQLite is local and is not a production multi-user database. A future milestone should replace this with an explicitly approved hosted persistence layer if needed.
+Vercel and Netlify configuration files are included for safe demo deployment. They use `APP_MODE=demo`; do not deploy private mode with local SQLite. Runtime secrets belong in the hosting provider's environment settings, never in Git. Before a real multi-user deployment, replace local SQLite with an approved hosted persistence layer and configure `PUBLICATION_BASE_URL` only after the publishing channel is approved.
 
 ## Roadmap
 
