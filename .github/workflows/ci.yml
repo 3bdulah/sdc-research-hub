@@ -8,7 +8,12 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci
+        working-directory: sdc-research-hub
       - run: npm run lint
+        working-directory: sdc-research-hub
       - run: npm run typecheck
+        working-directory: sdc-research-hub
       - run: npm test
+        working-directory: sdc-research-hub
       - run: npm run build
+        working-directory: sdc-research-hub
