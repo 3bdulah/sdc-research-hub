@@ -1,0 +1,7 @@
+[
+  { "id": "official-start-date", "nameAr": "تاريخ البداية الرسمي", "status": "waiting" },
+  { "id": "poll-wording", "nameAr": "صياغة الاستبيان وتوقيته", "status": "waiting" },
+  { "id": "digest-template", "nameAr": "قالب الملخص والثريد", "status": "waiting" },
+  { "id": "publishing-path", "nameAr": "قناة ومسار النشر", "status": "waiting" },
+  { "id": "activities-calendar", "nameAr": "تنسيق تقويم الأنشطة ربع السنوي", "status": "waiting" }
+]

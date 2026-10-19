@@ -1,0 +1,14 @@
+[
+  { "id": "completed-papers", "dimension": "production", "nameAr": "أبحاث مكتملة", "target": "15 شهريًا", "owner": "leader" },
+  { "id": "threads", "dimension": "production", "nameAr": "ثريدات منشورة", "target": "4 شهريًا", "owner": "deputy" },
+  { "id": "on-time", "dimension": "production", "nameAr": "التسليم في الموعد", "target": "90%+", "owner": "coordinator" },
+  { "id": "reviewed", "dimension": "quality", "nameAr": "أبحاث مراجعة قبل النشر", "target": "100%", "owner": "deputy" },
+  { "id": "unverified", "dimension": "quality", "nameAr": "مصادر غير موثقة", "target": "0", "owner": "leader" },
+  { "id": "first-review", "dimension": "quality", "nameAr": "القبول من أول مراجعة", "target": "70%+", "owner": "reviewer" },
+  { "id": "licensed", "dimension": "quality", "nameAr": "أبحاث برخصة موثقة", "target": "100%", "owner": "coordinator" },
+  { "id": "digest-reads", "dimension": "impact", "nameAr": "قراءات الملخص", "target": "خط أساس", "owner": "deputy" },
+  { "id": "thread-engagement", "dimension": "impact", "nameAr": "تفاعل الثريدات", "target": "خط أساس", "owner": "deputy" },
+  { "id": "retention", "dimension": "team", "nameAr": "استمرار الأعضاء", "target": "85%+", "owner": "leader" },
+  { "id": "satisfaction", "dimension": "team", "nameAr": "رضا الأعضاء", "target": "4 من 5+", "owner": "deputy" },
+  { "id": "volunteer-hours", "dimension": "team", "nameAr": "توثيق الساعات التطوعية", "target": "100%", "owner": "member" }
+]

@@ -1,0 +1,14 @@
+{
+  "2026-11": ["Agents", "Image and video understanding", "Forecasting and time series"],
+  "2026-12": ["Vibe Coding", "Vision-language models", "Deep learning for tabular data"],
+  "2027-01": ["Arabic LLMs", "Visual generation and media", "Trustworthy AI and explainability"],
+  "2027-02": ["RAG and vector databases", "Robotics and control", "Federated learning and privacy"],
+  "2027-03": ["Reasoning", "Autonomous driving and perception", "Big data analytics"],
+  "2027-04": ["Multimodal models and dev tools", "3D spatial perception", "Reinforcement learning"],
+  "2027-05": ["Code generation and coding agents", "Image and scene decoding", "Anomaly and fraud detection"],
+  "2027-06": ["AI for business and productivity", "AR and mixed reality", "Few-shot learning"],
+  "2027-07": ["LLM evaluation and safety", "Video generation and editing", "Predictive models for public health"],
+  "2027-08": ["Small efficient models", "Smart IoT (AIoT)", "Digital infrastructure for AI"],
+  "2027-09": ["Multi-agent systems", "Edge vision", "Training and inference efficiency"],
+  "2027-10": ["Responsible AI and governance", "Collaborative robots and drones", "World models and simulation"]
+}

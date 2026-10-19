@@ -1,0 +1,13 @@
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+
+export const users = sqliteTable("users", { id: text("id").primaryKey(), name: text("name").notNull(), email: text("email").notNull().unique(), role: text("role").notNull(), createdAt: text("created_at").notNull() });
+export const axes = sqliteTable("axes", { id: text("id").primaryKey(), nameAr: text("name_ar").notNull(), nameEn: text("name_en").notNull() });
+export const pairs = sqliteTable("pairs", { id: text("id").primaryKey(), axisId: text("axis_id").notNull(), coordinatorId: text("coordinator_id").notNull() });
+export const reviewGroups = sqliteTable("review_groups", { id: text("id").primaryKey(), name: text("name").notNull(), headId: text("head_id").notNull() });
+export const cycles = sqliteTable("cycles", { id: text("id").primaryKey(), startDate: text("start_date").notNull(), endDate: text("end_date").notNull(), status: text("status").notNull() });
+export const cycleTasks = sqliteTable("cycle_tasks", { id: text("id").primaryKey(), cycleId: text("cycle_id").notNull(), name: text("name").notNull(), dueDate: text("due_date").notNull(), status: text("status").notNull() });
+export const papers = sqliteTable("papers", { id: text("id").primaryKey(), cycleId: text("cycle_id").notNull(), pairId: text("pair_id").notNull(), title: text("title").notNull(), sector: text("sector").notNull(), licenseVerdict: text("license_verdict").notNull() });
+export const deliverables = sqliteTable("deliverables", { id: text("id").primaryKey(), paperId: text("paper_id").notNull(), kind: text("kind").notNull(), status: text("status").notNull(), approvedAt: text("approved_at") });
+export const proposals = sqliteTable("proposals", { id: text("id").primaryKey(), pairId: text("pair_id").notNull(), url: text("url").notNull(), sector: text("sector").notNull(), licenseVerdict: text("license_verdict").notNull(), selected: integer("selected", { mode: "boolean" }).notNull() });
+export const configEntries = sqliteTable("config_entries", { id: text("id").primaryKey(), kind: text("kind").notNull(), value: text("value").notNull(), updatedAt: text("updated_at").notNull() });
+export const changeLog = sqliteTable("change_log", { id: text("id").primaryKey(), entity: text("entity").notNull(), entityId: text("entity_id").notNull(), before: text("before"), after: text("after").notNull(), changedAt: text("changed_at").notNull(), changedBy: text("changed_by").notNull() });

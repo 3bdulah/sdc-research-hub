@@ -1,0 +1,5 @@
+[
+  { "id": "a1", "nameAr": "النماذج اللغوية والذكاء التوليدي والوكلاء", "nameEn": "LLMs, NLP, GenAI and Agents" },
+  { "id": "a2", "nameAr": "الرؤية الحاسوبية والوسائط والروبوتات", "nameEn": "Computer vision, media and robotics" },
+  { "id": "a3", "nameAr": "التعلم الآلي والعميق والتطبيقات", "nameEn": "ML, DL and applications" }
+]

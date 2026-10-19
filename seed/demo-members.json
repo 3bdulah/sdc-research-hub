@@ -1,0 +1,7 @@
+[
+  { "id": "leader-01", "nameAr": "عبدالله التجريبي", "email": "leader.demo@example.test", "role": "leader" },
+  { "id": "deputy-01", "nameAr": "مرام التجريبية", "email": "deputy.demo@example.test", "role": "deputy" },
+  { "id": "coord-01", "nameAr": "سارة المنسقة", "email": "coord1.demo@example.test", "role": "coordinator" },
+  { "id": "coord-02", "nameAr": "نورة المنسقة", "email": "coord2.demo@example.test", "role": "coordinator" },
+  { "id": "coord-03", "nameAr": "ريم المنسقة", "email": "coord3.demo@example.test", "role": "coordinator" }
+]

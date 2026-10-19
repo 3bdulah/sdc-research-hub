@@ -1,0 +1,7 @@
+[
+  { "id": "approve-proposals", "nameAr": "اعتماد بحث كل ثنائي خلال 24 ساعة", "owner": "leader", "cadence": "cycle_days_1_2" },
+  { "id": "final-approval", "nameAr": "اعتماد نهائي مشترك وفتح كل الروابط", "owner": "leader_deputy", "cadence": "cycle_days_25_28" },
+  { "id": "weekly-status", "nameAr": "التواصل الأسبوعي مع الفريق الإداري", "owner": "leader", "cadence": "weekly" },
+  { "id": "retention", "nameAr": "متابعة استمرار الأعضاء 85%+", "owner": "leader", "cadence": "monthly" },
+  { "id": "october-development", "nameAr": "متابعة دورة Git والشهادة", "owner": "leader", "cadence": "october_2026" }
+]

@@ -1,0 +1,9 @@
+@import "@fontsource/ibm-plex-sans-arabic/400.css";
+@import "@fontsource/ibm-plex-sans-arabic/500.css";
+@import "@fontsource/ibm-plex-sans-arabic/700.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root { color: #17212b; background: #f8f5ef; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "IBM Plex Sans Arabic", sans-serif; }
